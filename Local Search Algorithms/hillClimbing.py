@@ -165,7 +165,8 @@ def append_costs_to_csv(data, filename='hillClimbing.csv'):
 
 ##################################################################
 
-path, path_length, nodes_expanded = hillClimbing(g, n, 5)
+restarts = 5
+path, path_length, nodes_expanded = hillClimbing(g, n, restarts)
 
 # Stop measuring time
 end_cpu_time = time.process_time()
@@ -176,7 +177,7 @@ cpu_time = end_cpu_time - start_cpu_time
 realworld_time = end_realworld_time - start_realworld_time
 
 # cost, nodes, cpu, real-run-time
-data = [path_length, nodes_expanded, cpu_time, realworld_time]
+data = [path, path_length, nodes_expanded, cpu_time, realworld_time]
 
 #print(path)
 #print(data)

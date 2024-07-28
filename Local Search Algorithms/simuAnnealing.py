@@ -1,5 +1,7 @@
 import heapq
 import csv
+import math
+import random
 import time
 import sys
 
@@ -32,6 +34,16 @@ class Graph:
 
 ##################################################################
 
+def generate_random_path(n):
+
+    path = list(range(2, n + 1))
+
+    random.shuffle(path)
+
+    return [1] + path + [1]
+
+##################################################################
+
 def calculate_path_cost(graph, path):
 
     total_cost = 0
@@ -54,57 +66,58 @@ def calculate_path_cost(graph, path):
 
 ##################################################################
 
-def A_uniformCost(graph, start_node, dest_node, n):
+def temperature_function(temperature, cooling_ratio):
+    return temperature * cooling_ratio
+
+##################################################################
+
+def simuAnnealing(graph, n, restarts, initial_temperature, cooling_ratio):
 
     visited = 0
+    best_path_cost = sys.maxsize
 
-    # Priority queue contains tuples of (cumulative cost, node, path)
-    queue = [(0, start_node, [start_node])]  
-    heapq.heapify(queue)
-    #print(f"Initial queue: {queue}")
-    
-    while queue:
+    for restart in range(0, restarts):
 
-        # Get first (cost, node, path)
-        current_cost, current, path = heapq.heappop(queue)
+        # generate a random final state, its cost, and reset the temperature for SA on this restart
+        current_path = generate_random_path(n)
+        current_cost = calculate_path_cost(graph, current_path)
+        temperature = initial_temperature
 
-         # Check upper bound time
-        '''
-        current_realworld_time = time.time()
-        if current_realworld_time - start_realworld_time > time_limit:
-            print(f"Time limit for {n} exceeded.")
-            current_cost = calculate_path_cost(graph, path)
-            return path + [-1], current_cost, visited
-        '''
+        while temperature > 0: 
+            temperature = temperature_function(temperature, cooling_ratio)
+            restart += 1
 
-        visited += 1
+            if (temperature <= 1):
+                # if this final path is better than our best path, save it
+                if (current_cost < best_path_cost):
+                    best_path = current_path
+                    best_path_cost = current_cost
+                done = True
+                break
 
-        if current == dest_node and len(path) == n + 1:
-            #print(f"Destination node {dest_node} found!")
-            #print(f"Total edge length: {current_cost}")
-            #print(f"Path: {' -> '.join(map(str, path))}")
-            return path, calculate_path_cost(graph, path), visited
+            # generate a random new state
+            visited += 1
+            i, j = random.sample(range(1, n), 2)
+            neighbor_path = current_path[:]
+            neighbor_path[i], neighbor_path[j] = neighbor_path[j], neighbor_path[i]
+            neighbor_cost = calculate_path_cost(graph, neighbor_path)
+            deltaE = current_cost - neighbor_cost
 
-        # Add unvisited neighbors to the priority queue
-        for neighbor, weight in graph.adj_list[current]:
+            # accept, or conditionally accept state
+            if (deltaE > 0):
+                current_path = neighbor_path
+                current_cost = neighbor_cost
+                #print(current_path)
+            else:
+                #print(math.exp(deltaE/temperature))
+                if (math.exp(deltaE/temperature) > random.random()):
+                    current_path = neighbor_path
+                    current_cost = neighbor_cost
 
-            heuristic_weight = graph.heuristic_list[current]
+            # repeat
 
-            if neighbor not in path or (neighbor == start_node and len(path) == n):
-                heapq.heappush(queue, (current_cost + weight + heuristic_weight, neighbor, path + [neighbor]))
-        
-        #print(f"Visited nodes: {visited}")
-            
-        #else:
-            
-            #print(f"Node {current} already visited")
-        
-        #input("Press Enter to continue...")
-        #print(f"Current queue: {queue}")
-        #print("---------------------")
-    
-    return None, -1, visited  # If there is no path from start_node to dest_node
-    
+    return best_path, best_path_cost, visited
+
 ##################################################################
 
 input_stream = sys.stdin
@@ -144,7 +157,7 @@ g = Graph(edge_list, heuristic_list)
 
 ##################################################################
 
-def append_costs_to_csv(data, filename='A_uniformCost.csv'):
+def append_costs_to_csv(data, filename='simuAnnealing.csv'):
 
     with open(filename, mode='a', newline='') as file:
 
@@ -154,21 +167,10 @@ def append_costs_to_csv(data, filename='A_uniformCost.csv'):
 
 ##################################################################
 
-start_node = 1
-goal_node = 1
-
-'''
-if (n <= 150):
-    time_limit = 10800 # 3 hours
-
-if (n <= 100):
-    time_limit = 7200 # 2 hours
-
-if (n <= 30):
-    time_limit = 3600 # 1 hours
-'''
-
-path, path_length, nodes_expanded = A_uniformCost(g, start_node, goal_node, n)
+restarts = 5
+initial_temperature = 500
+cooling_ratio = .95
+path, path_length, nodes_expanded = simuAnnealing(g, n, restarts, initial_temperature, cooling_ratio)
 
 # Stop measuring time
 end_cpu_time = time.process_time()

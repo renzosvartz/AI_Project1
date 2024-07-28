@@ -19,7 +19,7 @@ for input_file in input_files:
 
     with open(input_file, 'r') as file:
 
-        process = subprocess.Popen(['python', 'Local Search Algorithms/hillClimbing.py'], stdin=file, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(['python', 'Local Search Algorithms/simuAnnealing.py'], stdin=file, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         stdout, stderr = process.communicate()
 

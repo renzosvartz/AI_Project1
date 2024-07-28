@@ -97,7 +97,7 @@ def calculate_path_cost(graph, path):
 ##################################################################
 
 
-def A_cheapestEdge(graph, start_node, dest_node, n, time_limit):
+def A_cheapestEdge(graph, start_node, dest_node, n):
 
     visited = 0
 
@@ -111,11 +111,13 @@ def A_cheapestEdge(graph, start_node, dest_node, n, time_limit):
         current_cost, current, path = heapq.heappop(queue)
 
         # Check upper bound time
+        '''
         current_realworld_time = time.time()
         if current_realworld_time - start_realworld_time > time_limit:
             print(f"Time limit for {n} exceeded.")
             current_cost = calculate_path_cost(graph, path)
             return path + [-1], current_cost, visited
+        '''
 
         visited += 1
 
@@ -201,6 +203,7 @@ def append_costs_to_csv(data, filename='A_cheapestEdge.csv'):
 start_node = 1
 goal_node = 1
 
+'''
 if (n <= 150):
     time_limit = 10800 # 3 hours
 
@@ -209,8 +212,9 @@ if (n <= 100):
 
 if (n <= 30):
     time_limit = 3600 # 1 hours
+'''
 
-path, path_length, nodes_expanded = A_cheapestEdge(g, start_node, goal_node, n, time_limit)
+path, path_length, nodes_expanded = A_cheapestEdge(g, start_node, goal_node, n)
 
 # Stop measuring time
 end_cpu_time = time.process_time()

@@ -95,11 +95,13 @@ def A_randomEdge(graph, start_node, dest_node, n):
         current_cost, current, path = heapq.heappop(queue)
 
         # Check upper bound time
+        '''
         current_realworld_time = time.time()
         if current_realworld_time - start_realworld_time > time_limit:
             print(f"Time limit for {n} exceeded.")
             current_cost = calculate_path_cost(graph, path)
             return path + [-1], current_cost, visited
+        '''
 
         available_edges = graph.adj_list[current]
 
@@ -186,6 +188,7 @@ def append_costs_to_csv(data, filename='A_randomEdge.csv'):
 start_node = 1
 goal_node = 1
 
+'''
 if (n <= 150):
     time_limit = 10800 # 3 hours
 
@@ -194,8 +197,9 @@ if (n <= 100):
 
 if (n <= 30):
     time_limit = 3600 # 1 hours
+'''
 
-path, path_length, nodes_expanded = A_randomEdge(g, start_node, goal_node, n, time_limit)
+path, path_length, nodes_expanded = A_randomEdge(g, start_node, goal_node, n)
 
 # Stop measuring time
 end_cpu_time = time.process_time()
