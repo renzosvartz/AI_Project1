@@ -48,7 +48,7 @@ def calculate_path_cost(graph, path):
 
     # Check for bad paths
     seen = set()
-    for i in range(len(path)):
+    for i in range(len(path) - 1):
         src = path[i]
         if src in seen:
             return sys.maxsize
@@ -93,18 +93,32 @@ def random_weighted_parent(probabilty_ranges):
 ##################################################################
 
 def reproduce(parent1, parent2):
+
     path1 = parent1['path']
     path2 = parent2['path']
+    n = len(path1)
 
-    splice_index = random.randint(1, len(path1) - 2)
+    start, end = sorted(random.sample(range(1, n - 1), 2))
 
-    child_path = path1[:splice_index] + path2[splice_index:]
+    child_path = [None] * n
+    child_path[0] = path1[0]
+    child_path[-1] = path1[-1]
+
+    child_path[start:end + 1] = path1[start:end + 1]
+
+    p2_index = 1
+    for i in range(1, n - 1):
+        if child_path[i] is None:
+            while path2[p2_index] in child_path:
+                p2_index += 1
+            child_path[i] = path2[p2_index]
+            p2_index += 1
 
     return {
-            'path': child_path,
-            'cost': 0,
-            'probability': 0
-        }
+        'path': child_path,
+        'cost': 0,
+        'probability': 0
+    }
 
 ##################################################################
 
@@ -165,7 +179,7 @@ def genetic(graph, n, generations, mutation_rate):
         total_inverse_cost = 0
 
         # selection 100 new children
-        for child_id in range(0, 100):
+        for child_id in range(0, 250):
             visited += 1
 
             parent1_id = random_weighted_parent(probabilty_ranges)
@@ -242,7 +256,7 @@ def append_costs_to_csv(data, filename='genetic.csv'):
 
 ##################################################################
 
-generations = 5
+generations = 250
 mutation_rate = .05
 path, path_length, nodes_expanded = genetic(g, n, generations, mutation_rate)
 

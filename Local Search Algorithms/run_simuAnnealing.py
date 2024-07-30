@@ -3,7 +3,7 @@ import re
 import subprocess
 import glob
 
-input_files = glob.glob("Graphs/Local Search Algorithms/graph*.txt")
+input_files = glob.glob("Graphs/Local Search Algorithms Small/graph*.txt")
 
 def extract_number(filename):
     
