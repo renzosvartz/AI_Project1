@@ -3,28 +3,30 @@ import re
 import subprocess
 import glob
 
-input_files = glob.glob("Graphs/Astar/graph*.txt")
+for size in range(5, 155, 5):
 
-def extract_number(filename):
-    
-    base_name = os.path.basename(filename)
-    
-    match = re.search(r'(\d+)', base_name)
+    input_files = glob.glob(f"Graphs/Astar/graph_size{size}_*.txt")
 
-    return int(match.group(1)) if match else 0
+    def extract_number(filename):
+        
+        base_name = os.path.basename(filename)
+        
+        match = re.search(r'_(\d+)', base_name)
 
-input_files = sorted(input_files, key=extract_number)
+        return int(match.group(1)) if match else 0
 
-for input_file in input_files:
+    input_files = sorted(input_files, key=extract_number)
 
-    with open(input_file, 'r') as file:
+    for input_file in input_files:
 
-        process = subprocess.Popen(['python', 'Astar/A_uniformCost.py'], stdin=file, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        with open(input_file, 'r') as file:
 
-        stdout, stderr = process.communicate()
+            process = subprocess.Popen(['python', 'Astar/A_uniformCost.py'], stdin=file, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        print(f"Running with {input_file}")
-        print(f"Output:\n{stdout.decode()}")
+            stdout, stderr = process.communicate()
 
-        if stderr:
-            print(f"Errors:\n{stderr.decode()}")
+            print(f"Running with {input_file}")
+            print(f"Output:\n{stdout.decode()}")
+
+            if stderr:
+                print(f"Errors:\n{stderr.decode()}")

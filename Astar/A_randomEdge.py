@@ -77,7 +77,7 @@ def A_randomEdge(graph, start_node, dest_node, n):
     visited = 0
 
     # Priority queue contains tuples of (cumulative cost, node, path)
-    queue = [(0, start_node, [start_node])]  
+    queue = [(0, 0, start_node, [start_node])]  
     heapq.heapify(queue)
     #print(f"Initial queue: {queue}")
 
@@ -92,7 +92,7 @@ def A_randomEdge(graph, start_node, dest_node, n):
     while queue:
 
         # Get first (cost, node, path)
-        current_cost, current, path = heapq.heappop(queue)
+        f, g, current, path = heapq.heappop(queue)
 
         # Check upper bound time
         '''
@@ -118,11 +118,17 @@ def A_randomEdge(graph, start_node, dest_node, n):
 
             if neighbor not in path or (neighbor == start_node and len(path) == n):
 
+                new_path = path + [neighbor]
+
+                new_g = g + weight
+
                 random_path = random_path_generator(path, n)
 
                 heuristic_weight = calculate_path_cost(graph, random_path)
 
-                heapq.heappush(queue, (current_cost + weight + heuristic_weight, neighbor, path + [neighbor]))
+                f = new_g + heuristic_weight
+
+                heapq.heappush(queue, (f, new_g, neighbor, new_path))
 
         #print(f"Visited nodes: {visited}")
             

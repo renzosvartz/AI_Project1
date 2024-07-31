@@ -256,7 +256,7 @@ def append_costs_to_csv(data, filename='genetic.csv'):
 
 ##################################################################
 
-generations = 250
+generations = 125
 mutation_rate = .05
 path, path_length, nodes_expanded = genetic(g, n, generations, mutation_rate)
 

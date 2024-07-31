@@ -37,39 +37,40 @@ def MST_cost_generator(graph, path, n):
 
     all_numbers = set(range(1, n + 1))
     used_numbers = set(path)
-    numbers_left = list(all_numbers - used_numbers)
+    numbers_left = list(all_numbers - used_numbers) + [1]
 
-    # generate the mst and get cost
+    if len(numbers_left) == 1:
+        return 0
+    
     total_cost = 0
     in_mst = set()
-    edges = []
 
-    # add all edges (relevant)
-    for vertex in numbers_left:
-        for dst, weight in graph.adj_list[vertex]:
-            if vertex < dst:  # To avoid duplicate edges
-                edges.append((weight, vertex, dst))
+    priority_queue = []
     
-    # grab cheapest edges for MST (Prim's)
-    edges.sort()
+    start_vertex = min(numbers_left)
+    in_mst.add(start_vertex)
+    
+    for dst, weight in graph.adj_list[start_vertex]:
+        if dst in numbers_left:
+            heapq.heappush(priority_queue, (weight, start_vertex, dst))
+    
+    while priority_queue:
+        weight, src, dst = heapq.heappop(priority_queue)
 
-
-    for weight, src, dst in edges:
-            
-        if (src not in numbers_left or dst not in numbers_left):
-            continue
-
-        if (src in in_mst and dst in in_mst):
+        if dst in in_mst or dst not in numbers_left:
             continue
 
         total_cost += weight
-
-        in_mst.add(src)
         in_mst.add(dst)
 
+        # add all edges from the newly added vertex to the priority queue
+        for next_dst, next_weight in graph.adj_list[dst]:
+            if next_dst in numbers_left and next_dst not in in_mst:
+                heapq.heappush(priority_queue, (next_weight, dst, next_dst))
+        
         if len(in_mst) == len(numbers_left):
             break
-
+    
     return total_cost
 
 ##################################################################
@@ -102,18 +103,18 @@ def A_MST(graph, start_node, dest_node, n):
     visited = 0
 
     # Priority queue contains tuples of (cumulative cost, node, path)
-    queue = [(0, start_node, [start_node])]  
+    queue = [(0, 0, start_node, [start_node])]  
     heapq.heapify(queue)
     
     while queue:
 
         # Get first (cost, node, path)
-        current_cost, current, path = heapq.heappop(queue)
+        f, g, current, path = heapq.heappop(queue)
 
         # Check upper bound time
         '''
         current_realworld_time = time.time()
-        if current_realworld_time - start_realworld_time > time_limit:
+        if current_realworld_time - start_realworld_time > 3600:
             print(f"Time limit for {n} exceeded.")
             current_cost = calculate_path_cost(graph, path)
             return path + [-1], current_cost, visited
@@ -132,12 +133,15 @@ def A_MST(graph, start_node, dest_node, n):
 
             if neighbor not in path or (neighbor == start_node and len(path) == n):
 
-                if (neighbor != dest_node):
-                    heuristic_weight = MST_cost_generator(graph, path + [neighbor], n)
-                else:
-                    heuristic_weight = 0
+                new_path = path + [neighbor]
 
-                heapq.heappush(queue, (current_cost + weight + heuristic_weight, neighbor, path + [neighbor]))
+                new_g = g + weight
+
+                heuristic_weight = MST_cost_generator(graph, new_path, n)
+
+                f = new_g + heuristic_weight
+
+                heapq.heappush(queue, (f, new_g, neighbor, new_path))
 
         #print(f"Visited nodes: {visited}")
             
